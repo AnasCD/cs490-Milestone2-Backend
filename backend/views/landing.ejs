@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            width: 50%;
+        }
+        .close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Top 5 Rented Films</h1>
+    <ul>
+        <% top5Films.forEach(film => { %>
+            <li>
+                <a href="#" class="film-link" data-id="<%= film.film_id %>"><%= film.title %></a>
+            </li>
+        <% }) %>
+    </ul>
+
+    <h1>Top 5 Actors</h1>
+    <ul>
+        <% top5Actors.forEach(actor => { %>
+            <li>
+                <a href="#" class="actor-link" data-id="<%= actor.actor_id %>"><%= actor.first_name %> <%= actor.last_name %></a>
+            </li>
+        <% }) %>
+    </ul>
+
+    <!-- Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('detailsModal');
+            const modalBody = document.getElementById('modalBody');
+            const closeModal = document.getElementById('closeModal');
+        
+            function fetchDetails(url, isActor = false) {
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (isActor) {
+                            // Handle actor details and top 5 movies
+                            const actor = data.actorDetails;
+                            const movies = data.topMovies;
+                            
+                            let movieList = '<h3>Top 5 Movies:</h3><ul>';
+                            
+                            // Check if movies exist before rendering
+                            if (movies && movies.length > 0) {
+                                movies.forEach(movie => {
+                                    movieList += `<li>${movie.title} (Rentals: ${movie.rentals})</li>`;
+                                });
+                            } else {
+                                movieList += '<li>No movies found for this actor</li>';
+                            }
+                            movieList += '</ul>';
+        
+                            modalBody.innerHTML = `
+                                <h2>${actor.first_name} ${actor.last_name}</h2>
+                                ${movieList}
+                            `;
+                        } else {
+                            // Handle film details
+                            const film = data;
+                            modalBody.innerHTML = `
+                                <h2>${film.title}</h2>
+                                <p><strong>Description:</strong> ${film.description ?? 'N/A'}</p>
+                                <p><strong>Release Year:</strong> ${film.release_year ?? 'N/A'}</p>
+                                <p><strong>Rental Duration:</strong> ${film.rental_duration ?? 'N/A'} days</p>
+                                <p><strong>Rental Rate:</strong> $${film.rental_rate ?? 'N/A'}</p>
+                                <p><strong>Length:</strong> ${film.length ?? 'N/A'} minutes</p>
+                                <p><strong>Replacement Cost:</strong> $${film.replacement_cost ?? 'N/A'}</p>
+                                <p><strong>Rating:</strong> ${film.rating ?? 'N/A'}</p>
+                                <p><strong>Special Features:</strong> ${film.special_features ?? 'N/A'}</p>
+                                <p><strong>Last Updated:</strong> ${film.last_update ? new Date(film.last_update).toLocaleDateString() : 'N/A'}</p>
+                            `;
+                        }
+        
+                        modal.style.display = 'flex';
+                    })
+                    .catch(err => console.error('Error fetching details:', err));
+            }
+        
+            // Event listener for film links
+            document.querySelectorAll('.film-link').forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const filmId = this.getAttribute('data-id');
+                    fetchDetails(`/films/${filmId}`);
+                });
+            });
+        
+            // Event listener for actor links
+            document.querySelectorAll('.actor-link').forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const actorId = this.getAttribute('data-id');
+                    fetchDetails(`/actors/${actorId}`, true);  // Fetch actor details (isActor = true)
+                });
+            });
+        
+            // Close modal
+            closeModal.onclick = function() {
+                modal.style.display = 'none';
+            };
+        
+            // Close modal when clicking outside the content
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        });
+        
+    </script>
+    
+</body>
+</html>

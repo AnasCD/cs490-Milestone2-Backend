@@ -1,12 +1,9 @@
-/*Sets up express server, defines middleware, and connects routes
-*/ 
-
-
 import express from "express";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import landingPageRoutes from "./routes/landingPage.js";
 import filmsRoutes from "./routes/films.js";
+import filmsPageRoutes from "./routes/films2.js"
 import actorsRoutes from "./routes/actors.js";
 import customersRoutes from "./routes/customers.js";
 import connectMySql from './db/connectMySql.js';
@@ -24,9 +21,10 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 */
 app.use(cors());
-app.use("/api", landingPageRoutes);  // Landing page
-app.use("/api/films", filmsRoutes);   // Film details
-app.use("/api/actors", actorsRoutes); // Actor details
+app.use("/api", landingPageRoutes);
+app.use("/api/films", filmsRoutes);
+app.use("/api/actors", actorsRoutes); 
+app.use("/api/films-page", filmsPageRoutes);
 app.use("/api/customers", customersRoutes);
 
 // Start server

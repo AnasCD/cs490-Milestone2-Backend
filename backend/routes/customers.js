@@ -1,9 +1,10 @@
 import express from "express";
-import { getCustomers } from "../controllers/customerController.js";  // Import controller
+import { getCustomers } from "../controllers/customerController.js";
+import { searchCustomerByQuery } from "../controllers/customerController.js";
 
 const router = express.Router();
 
-// Route to fetch paginated customers
-router.get("/:id", getCustomers);
+router.get("/", getCustomers);
+router.get("/search", searchCustomerByQuery);
 
 export default router;

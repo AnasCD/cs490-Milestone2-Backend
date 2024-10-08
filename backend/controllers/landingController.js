@@ -4,7 +4,6 @@ to the view*/
 
 import { getTop5RentedMovies, getTop5Actors } from "../models/chartsQueries.js";
 
-// Fetch both top 5 rented films and top 5 actors for the landing page
 export const getLandingPageData = (req, res) => {
     getTop5RentedMovies((err, filmsResult) => {
         if (err) {

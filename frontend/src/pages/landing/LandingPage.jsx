@@ -6,9 +6,8 @@ function LandingPage() {
   const [selectedFilm, setSelectedFilm] = useState(null);
   const [selectedActor, setSelectedActor] = useState(null);
 
-  // Fetch top 5 films and actors when the component loads
   useEffect(() => {
-    fetch('http://localhost:5000/api')  // Assuming the proxy in package.json is working
+    fetch('http://localhost:5000/api')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -22,7 +21,7 @@ function LandingPage() {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  // Fetch film details when a film is clicked
+
   const fetchFilmDetails = (id) => {
     fetch(`http://localhost:5000/api/films/${id}`)
       .then((response) => {
@@ -35,7 +34,7 @@ function LandingPage() {
       .catch((error) => console.error('Error fetching film details:', error));
   };
 
-  // Fetch actor details when an actor is clicked
+
   const fetchActorDetails = (id) => {
     fetch(`http://localhost:5000/api/actors/${id}`)
       .then((response) => {

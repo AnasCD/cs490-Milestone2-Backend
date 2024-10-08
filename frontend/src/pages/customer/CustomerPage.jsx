@@ -2,33 +2,59 @@ import React, { useEffect, useState } from 'react';
 
 const CustomerPage = () => {
   const [customers, setCustomers] = useState([]);
-  const [page, setPage] = useState(1);  // Current page
-  const [totalPages, setTotalPages] = useState(1);  // Total pages (you'll calculate this based on total records)
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch customers for the current page
-  const fetchCustomers = (pageNumber) => {
-    console.log("Fetching customers for page:", page);
-    fetch(`http://localhost:5000/api/customers?page=${pageNumber}&limit=10`)  // Adjust the limit as needed
+  const fetchCustomers = (pageNumber, search) => {
+    let url;
+    
+    if (search) {
+      url = `http://localhost:5000/api/customers/search?search=${search}&page=${pageNumber}&limit=10`;
+    } else {
+      url = `http://localhost:5000/api/customers?page=${pageNumber}&limit=10`;
+    }
+    
+    console.log("Fetching customers from URL:", url);
+
+    fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setCustomers(data.customers);  // Assuming the API returns customers in a "customers" field
-        setTotalPages(Math.ceil(data.totalCustomers / 10));  // Adjust to your total customer count
+        setCustomers(data.customers || []);
+        setTotalPages(Math.ceil(data.totalCustomers / 10));
       })
       .catch((error) => console.error('Error fetching customers:', error));
   };
 
   useEffect(() => {
-    fetchCustomers(page);  // Fetch customers when the page changes
-  }, [page]);
+    fetchCustomers(page, searchTerm);  // Fetch customers when the page or search term changes
+  }, [page, searchTerm]);
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
+    setPage(newPage);  // Update the page number and trigger fetch
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);  // Update the search term when the user types
+    setPage(1);  // Reset to page 1 when searching
   };
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Customers</h1>
 
+      {/* Search Input */}
+      <div className="mb-4">
+        <input
+          type="text"
+          className="input input-bordered"
+          placeholder="Search by ID, First Name, Last Name"
+          value={searchTerm}
+          onChange={handleSearchChange}  // Update the search term on change
+        />
+      </div>
+
+      
       <ul className="list-disc pl-6">
         {customers.map((customer) => (
           <li key={customer.customer_id} className="mb-2">
@@ -42,9 +68,7 @@ const CustomerPage = () => {
         ))}
       </ul>
 
-      {/* Pagination */}
       <div className="join mt-6">
-        {/* Previous Button */}
         <button
           className={`join-item btn ${page === 1 ? 'btn-disabled' : ''}`}
           onClick={() => handlePageChange(page - 1)}
@@ -53,7 +77,6 @@ const CustomerPage = () => {
           Previous
         </button>
 
-        {/* Page Buttons */}
         {[...Array(totalPages)].map((_, index) => (
           <button
             key={index + 1}
@@ -64,7 +87,7 @@ const CustomerPage = () => {
           </button>
         ))}
 
-        {/* Next Button */}
+
         <button
           className={`join-item btn ${page === totalPages ? 'btn-disabled' : ''}`}
           onClick={() => handlePageChange(page + 1)}

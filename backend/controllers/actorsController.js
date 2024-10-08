@@ -1,6 +1,5 @@
 import { getActorDetailsById, getTop5MoviesByActor } from "../models/chartsQueries.js";
 
-// Controller function to fetch actor details and their top 5 movies
 export const getActorDetails = (req, res) => {
     const actorId = req.params.id;
 
